@@ -1,12 +1,13 @@
 
 import 'package:flutter/material.dart';
 
+import 'api_manager/api_manager.dart';
 import 'core/routes_manager/route_generator.dart';
 import 'core/routes_manager/routes_names.dart';
-import 'features/speech_to_text/speech_to_text.dart';
 
 void main() {
   runApp(const MyApp());
+ApiManager.test("what do you know about egypt?");
 }
 
 class MyApp extends StatelessWidget {
