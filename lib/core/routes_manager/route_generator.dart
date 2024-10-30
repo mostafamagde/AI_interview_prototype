@@ -20,11 +20,7 @@ class RouteGenerator {
           settings: settings,
         );
 
-      case RoutesNames.speechView:
-        return MaterialPageRoute(
-          builder: (context) => const SpeechtoText(),
-          settings: settings,
-        );
+
 
       default:
         return MaterialPageRoute(

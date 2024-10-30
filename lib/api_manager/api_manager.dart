@@ -9,7 +9,7 @@ class ApiManager {
     final prompt = req;
 
     final response = await model.generateContent([Content.text(prompt)]);
-
+print(response.text);
     return response.text!;
   }
 }

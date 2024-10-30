@@ -1,144 +1,116 @@
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
-
+import 'package:ai_interview_prototype/api_manager/api_manager.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/routes_manager/routes_names.dart';
-import '../../models/job_description.dart';
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
 
-
-class HomePage extends StatelessWidget {
-
-
+class _HomePageState extends State<HomePage> {
+  String answer = "your answer will display here";
   @override
   Widget build(BuildContext context) {
     var formKey = GlobalKey<FormState>();
-    String? title = "";
-    String? role = "";
-    int? exp = 0;
+    var controller = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF5D9CEC),
-        centerTitle: true,
-        title: Text(
-          "Home",
+        title: const Text(
+          "Gemini",
           style: TextStyle(
-            color: Colors.white,
+            fontWeight: FontWeight.w500,
             fontSize: 25,
           ),
         ),
+        backgroundColor: Colors.blue,
+        centerTitle: true,
       ),
       body: Form(
         key: formKey,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
               height: 40,
             ),
-            CustomDropdown(
-              hintText: "select position",
-              validateOnChange: true,
-              validator: (value) => value == null ? "Must not be null" : null,
-              items: [
-                "backend",
-                "front",
-                "security",
-                "ui",
-              ],
-              onChanged: (val) {
-                role = val;
+            TextFormField(
+              autocorrect: true,
+              validator: (value) {
+                if (value!.trim().isEmpty) {
+                  return "Please enter your question.";
+                }
+                return null;
               },
-              decoration: CustomDropdownDecoration(
-                closedBorder: Border.all(
-                  width: 2,
-                  color: Color(0xFF5D9CEC),
+              controller: controller,
+              decoration: const InputDecoration(
+                hintText: "Ask Gemini",
+                hintStyle: TextStyle(color: Colors.grey),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.blue,
+                    width: 2,
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.blue,
+                    width: 2,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.blue,
+                    width: 2,
+                  ),
                 ),
               ),
             ),
             SizedBox(
-              height: 40,
+              height: 30,
             ),
-            CustomDropdown(
-              hintText: "select title ",
-              validateOnChange: true,
-              validator: (value) => value == null ? "Must not be null" : null,
-              items: [
-                "fresh",
-                "senior",
-                "junior",
-              ],
-              onChanged: (val) {
-                title = val;
-              },
-              decoration: CustomDropdownDecoration(
-                closedBorder: Border.all(
-                  width: 2,
-                  color: Color(0xFF5D9CEC),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 40,
-            ),
-            CustomDropdown(
-              hintText: "select experience ",
-              validateOnChange: true,
-              validator: (value) => value == null ? "Must not be null" : null,
-              items: [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-              ],
-              onChanged: (val) {
-                exp = val;
-              },
-              decoration: CustomDropdownDecoration(
-                closedBorder: Border.all(
-                  width: 2,
-                  color: Color(0xFF5D9CEC),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 40,
-            ),
-            ElevatedButton(
-              onPressed: () {
+            FilledButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  )),
+              onPressed: () async {
                 if (formKey.currentState!.validate()) {
-                  Navigator.pushNamed(
-                    context,
-                    RoutesNames.speechView,
-                    arguments: JobDescription(
-                      title: title!,
-                      experience: exp!,
-                      role: role!,
-                    ),
-                  );
+                  final question = controller.text;
+                  try {
+                    final response = await ApiManager.gemiRequest(question);
+                    setState(() {
+                      answer = response;
+                    });
+                  } on Exception catch (e) {
+                    answer =
+                        "An error occurred while asking Gemini. Please try again.";
+                  } finally {
+                    controller.clear();
+                  }
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF5D9CEC),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+              child: Text("Ask Gemini"),
+            ),
+SizedBox(height: 15,),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                physics:BouncingScrollPhysics(),
+                child:Text(
+                  answer,
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ) ,
+              
               ),
-              child: Text(
-                "Next",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
-            )
+            ),
+
+
+
           ],
         ),
       ),
