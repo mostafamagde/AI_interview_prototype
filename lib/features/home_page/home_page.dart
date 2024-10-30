@@ -10,6 +10,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String answer = "your answer will display here";
+
   @override
   Widget build(BuildContext context) {
     var formKey = GlobalKey<FormState>();
@@ -31,7 +32,7 @@ class _HomePageState extends State<HomePage> {
         key: formKey,
         child: Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 40,
             ),
             TextFormField(
@@ -66,7 +67,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             FilledButton(
@@ -91,26 +92,24 @@ class _HomePageState extends State<HomePage> {
                   }
                 }
               },
-              child: Text("Ask Gemini"),
+              child: const Text("Ask Gemini"),
             ),
-SizedBox(height: 15,),
+            const SizedBox(
+              height: 15,
+            ),
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                physics:BouncingScrollPhysics(),
-                child:Text(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                physics: const BouncingScrollPhysics(),
+                child: Text(
                   answer,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.w500,
                   ),
-                ) ,
-              
+                ),
               ),
             ),
-
-
-
           ],
         ),
       ),
