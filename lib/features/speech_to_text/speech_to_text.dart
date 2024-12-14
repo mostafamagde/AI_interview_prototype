@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-import '../../models/job_description.dart';
-
 class SpeechtoText extends StatefulWidget {
   const SpeechtoText({super.key});
 
@@ -16,7 +14,6 @@ class _SpeechtoTextState extends State<SpeechtoText> {
   bool _speechEnabled = false;
   String _wordsSpoken = "";
   double _confidenceLevel = 0;
-
 
   @override
   void initState() {
@@ -50,11 +47,10 @@ class _SpeechtoTextState extends State<SpeechtoText> {
 
   @override
   Widget build(BuildContext context) {
-    var jobDesc =ModalRoute.of(context)?.settings.arguments as JobDescription;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF5D9CEC),
-        title: Text(
+        backgroundColor: const Color(0xFF5D9CEC),
+        title: const Text(
           'Speech Demo',
           style: TextStyle(
             color: Colors.white,
@@ -65,19 +61,19 @@ class _SpeechtoTextState extends State<SpeechtoText> {
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Text(
                 _speechToText.isListening
                     ? "listening..."
                     : _speechEnabled
-                    ? "Tap the microphone to start listening..."
-                    : "Speech not available",
-                style: TextStyle(fontSize: 20.0),
+                        ? "Tap the microphone to start listening..."
+                        : "Speech not available",
+                style: const TextStyle(fontSize: 20.0),
               ),
             ),
             Expanded(
               child: Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Text(
                   _wordsSpoken,
                   style: const TextStyle(
@@ -94,7 +90,7 @@ class _SpeechtoTextState extends State<SpeechtoText> {
                 ),
                 child: Text(
                   "Confidence: ${(_confidenceLevel * 100).toStringAsFixed(1)}%",
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.w200,
                   ),
@@ -106,11 +102,11 @@ class _SpeechtoTextState extends State<SpeechtoText> {
       floatingActionButton: FloatingActionButton(
         onPressed: _speechToText.isListening ? _stopListening : _startListening,
         tooltip: 'Listen',
+        backgroundColor: Colors.red,
         child: Icon(
           _speechToText.isNotListening ? Icons.mic_off : Icons.mic,
           color: Colors.white,
         ),
-        backgroundColor: Colors.red,
       ),
     );
   }

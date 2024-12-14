@@ -1,37 +1,18 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:ai_interview_prototype/core/voice_recognition/file_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
-Future<String> getFilePath(String fileName) async {
-  Directory directory = await getApplicationDocumentsDirectory();
-  if (Platform.isAndroid || Platform.isIOS) {
-    return '${directory.path}/$fileName';
-  }
-  return '${directory.path}\\$fileName';
-}
-
 Future<String> recieveAudioFromServer(String text) async {
-  var headers = {'text': text};
-
-  var request;
-
-  if (Platform.isWindows) {
-    request = http.MultipartRequest(
-      'POST',
-      Uri.parse('http://127.0.0.1:5001/tts'),
-    );
-  } else if (Platform.isAndroid || Platform.isIOS) {
-    request = http.MultipartRequest(
-      'POST',
-      Uri.parse('http://10.0.2.2:5001/tts'),
-    );
-  }
-
+  var headers = {'Content-Type': 'application/json'};
+  var request = http.Request('POST', Uri.parse('http://${await getDeviceIP()}:5003/tts'));
+  request.body = json.encode({"text": text});
   request.headers.addAll(headers);
 
   try {
-    var response = await request.send();
+    http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
       final directory = await getApplicationDocumentsDirectory();
       final String filePath = '${directory.path}/generated_audio.mp3';

@@ -1,145 +1,66 @@
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
-
+import 'package:ai_interview_prototype/core/voice_recognition/recorder_manager.dart';
+import 'package:ai_interview_prototype/core/voice_recognition/stt.dart';
+import 'package:ai_interview_prototype/core/voice_recognition/tts.dart';
+import 'package:ai_interview_prototype/features/home_page/mic_icon.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 
-import '../../core/routes_manager/routes_names.dart';
-import '../../models/job_description.dart';
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
+  late bool isLoading;
+  late String text;
+  String? path;
 
-class HomePage extends StatelessWidget {
-
+  @override
+  void initState() {
+    isLoading = false;
+    text = "";
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var formKey = GlobalKey<FormState>();
-    String? title = "";
-    String? role = "";
-    int? exp = 0;
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF5D9CEC),
-        centerTitle: true,
-        title: Text(
-          "Home",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 25,
-          ),
+    return ModalProgressHUD(
+      inAsyncCall: isLoading,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('GP AI Interview'),
         ),
-      ),
-      body: Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(
-              height: 40,
-            ),
-            CustomDropdown(
-              hintText: "select position",
-              validateOnChange: true,
-              validator: (value) => value == null ? "Must not be null" : null,
-              items: [
-                "backend",
-                "front",
-                "security",
-                "ui",
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(text, style: const TextStyle(fontSize: 28)),
+                GlowAvatarIcon(
+                  icon: Icons.mic,
+                  onPressed: (enabled) async {
+                    if (enabled) {
+                      path = await startRecording(audioFileName);
+                    } else if (!enabled && path != null) {
+                      await stopRecording();
+                      text = await sendAudioToServer(path!);
+                      setState(() {});
+                      String audioPath = await recieveAudioFromServer(text);
+                      await startPlayAudio(audioPath);
+                      await File(path!).delete();
+                      await File(audioPath).delete();
+                    }
+                  },
+                ),
               ],
-              onChanged: (val) {
-                role = val;
-              },
-              decoration: CustomDropdownDecoration(
-                closedBorder: Border.all(
-                  width: 2,
-                  color: Color(0xFF5D9CEC),
-                ),
-              ),
             ),
-            SizedBox(
-              height: 40,
-            ),
-            CustomDropdown(
-              hintText: "select title ",
-              validateOnChange: true,
-              validator: (value) => value == null ? "Must not be null" : null,
-              items: [
-                "fresh",
-                "senior",
-                "junior",
-              ],
-              onChanged: (val) {
-                title = val;
-              },
-              decoration: CustomDropdownDecoration(
-                closedBorder: Border.all(
-                  width: 2,
-                  color: Color(0xFF5D9CEC),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 40,
-            ),
-            CustomDropdown(
-              hintText: "select experience ",
-              validateOnChange: true,
-              validator: (value) => value == null ? "Must not be null" : null,
-              items: [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-              ],
-              onChanged: (val) {
-                exp = val;
-              },
-              decoration: CustomDropdownDecoration(
-                closedBorder: Border.all(
-                  width: 2,
-                  color: Color(0xFF5D9CEC),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 40,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  Navigator.pushNamed(
-                    context,
-                    RoutesNames.speechView,
-                    arguments: JobDescription(
-                      title: title!,
-                      experience: exp!,
-                      role: role!,
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF5D9CEC),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                "Next",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
-            )
-          ],
+          ),
         ),
       ),
     );

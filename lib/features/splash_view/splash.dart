@@ -1,6 +1,5 @@
+import 'package:ai_interview_prototype/core/routes_manager/routes_names.dart';
 import 'package:flutter/material.dart';
-
-import '../../core/routes_manager/routes_names.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -17,7 +16,9 @@ class _SplashState extends State<Splash> {
         seconds: 2,
       ),
       () {
-        Navigator.pushReplacementNamed(context, RoutesNames.homeView);
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, RoutesNames.homeView);
+        }
       },
     );
     super.initState();
@@ -26,10 +27,11 @@ class _SplashState extends State<Splash> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Color(0xFF0D0F1B),
-        child: Image(
-      image: AssetImage("assests/images/spalsh.jpeg"),
-      fit: BoxFit.contain,
-    ));
+      color: const Color(0xFF0D0F1B),
+      child: const Image(
+        image: AssetImage("assests/images/spalsh.jpeg"),
+        fit: BoxFit.contain,
+      ),
+    );
   }
 }
