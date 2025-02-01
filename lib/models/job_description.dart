@@ -3,6 +3,5 @@ class JobDescription {
   final String role;
   final int experience;
 
-  JobDescription(
-      {required this.title, required this.role, required this.experience});
+  JobDescription({required this.title, required this.role, required this.experience});
 }

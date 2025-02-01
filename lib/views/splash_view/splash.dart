@@ -17,7 +17,7 @@ class _SplashState extends State<Splash> {
       ),
       () {
         if (mounted) {
-          Navigator.pushReplacementNamed(context, RoutesNames.homeView);
+          Navigator.pushReplacementNamed(context, RoutesNames.interviewRequirementsPage);
         }
       },
     );

@@ -1,19 +1,20 @@
+import 'dart:io';
+
 import 'package:ai_interview_prototype/core/voice_recognition/recorder_manager.dart';
 import 'package:ai_interview_prototype/core/voice_recognition/stt.dart';
 import 'package:ai_interview_prototype/core/voice_recognition/tts.dart';
-import 'package:ai_interview_prototype/features/home_page/mic_icon.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:ai_interview_prototype/views/custom_widgets/mic_icon.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class InterviewPage extends StatefulWidget {
+  const InterviewPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<InterviewPage> createState() => _InterviewPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _InterviewPageState extends State<InterviewPage> {
   late bool isLoading;
   late String text;
   String? path;
