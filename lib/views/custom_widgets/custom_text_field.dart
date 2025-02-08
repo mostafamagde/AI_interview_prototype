@@ -2,12 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
-  const CustomTextField({super.key, required this.hineText, this.inputFormatters, this.controller, this.onSaved});
+  const CustomTextField({
+    super.key,
+    required this.hineText,
+    this.inputFormatters,
+    this.controller,
+    this.onSaved,
+    this.maxLines = 1,
+    this.minLines,
+  });
 
   final String hineText;
   final List<TextInputFormatter>? inputFormatters;
   final TextEditingController? controller;
   final void Function(String?)? onSaved;
+  final int? maxLines;
+  final int? minLines;
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +29,7 @@ class CustomTextField extends StatelessWidget {
         return null;
       },
       onSaved: onSaved,
+      maxLines: maxLines,
       controller: controller,
       inputFormatters: inputFormatters,
       onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),

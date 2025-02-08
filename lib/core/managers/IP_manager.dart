@@ -19,7 +19,7 @@ class IPManager {
         if (isEmulator) {
           return '10.0.2.2';
         } else {
-          return '192.168.1.2';
+          return '192.168.1.5';
         }
       } else if (Platform.isWindows || Platform.isMacOS) {
         return '127.0.0.1';

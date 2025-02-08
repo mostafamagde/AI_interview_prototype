@@ -7,9 +7,10 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 class ModelsManager {
-  const ModelsManager();
+  const ModelsManager(this._sessionId);
 
-  final IPManager _ipManager = const IPManager();
+  static const IPManager _ipManager = IPManager();
+  final String _sessionId;
 
   Future<String> textToText(final String text) async {
     final Map<String, String> headers = {
@@ -21,7 +22,10 @@ class ModelsManager {
       Uri.parse("${await Constants.getBaseUrl(await _ipManager.getDeviceIP(), Constants.port)}/${Constants.tttEndPoint}"),
     );
 
-    request.body = json.encode({"prompt": text});
+    request.body = json.encode({
+      "prompt": text,
+      "sessionId": _sessionId,
+    });
     request.headers.addAll(headers);
 
     final http.StreamedResponse response = await request.send();
