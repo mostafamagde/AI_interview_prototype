@@ -11,16 +11,25 @@ class InterviewRequirementsPage extends StatefulWidget {
 }
 
 class _InterviewRequirementsPageState extends State<InterviewRequirementsPage> {
-  late final String jobTitle;
-  late final String jobDescription;
+  late final TextEditingController jobTitleController;
+  late final TextEditingController jobDescriptionController;
   late final GlobalKey<FormState> formKey;
   late AutovalidateMode autovalidateMode;
 
   @override
   void initState() {
+    jobTitleController = TextEditingController();
+    jobDescriptionController = TextEditingController();
     formKey = GlobalKey<FormState>();
     autovalidateMode = AutovalidateMode.disabled;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    jobTitleController.dispose();
+    jobDescriptionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -37,15 +46,17 @@ class _InterviewRequirementsPageState extends State<InterviewRequirementsPage> {
               children: [
                 CustomTextField(
                   hineText: 'Job Title',
+                  controller: jobTitleController,
                   onSaved: (value) {
-                    jobTitle = value!;
+                    jobTitleController.text = value!;
                   },
                 ),
                 const SizedBox(height: 15),
                 CustomTextField(
                   hineText: 'Job Description',
+                  controller: jobDescriptionController,
                   onSaved: (value) {
-                    jobDescription = value!;
+                    jobDescriptionController.text = value!;
                   },
                 ),
                 const SizedBox(height: 30),

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'core/routes_manager/route_generator.dart';
 import 'core/routes_manager/routes_names.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const MyApp());
 }
 
