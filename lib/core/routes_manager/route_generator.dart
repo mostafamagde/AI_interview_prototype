@@ -1,5 +1,6 @@
 import 'package:ai_interview_prototype/core/routes_manager/routes_names.dart';
 import 'package:ai_interview_prototype/views/interview_page/interview_page.dart';
+import 'package:ai_interview_prototype/views/interview_page/total_score_page.dart';
 import 'package:ai_interview_prototype/views/interview_requirements_page/interview_requirements_page.dart';
 import 'package:ai_interview_prototype/views/splash_view/splash.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,12 @@ class RouteGenerator {
       case RoutesNames.interviewRequirementsPage:
         return MaterialPageRoute(
           builder: (context) => const InterviewRequirementsPage(),
+          settings: settings,
+        );
+
+      case RoutesNames.totalScorePage:
+        return MaterialPageRoute(
+          builder: (context) => const TotalScorePage(),
           settings: settings,
         );
 

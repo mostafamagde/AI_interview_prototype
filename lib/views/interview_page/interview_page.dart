@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:ai_interview_prototype/core/managers/models_manager.dart';
 import 'package:ai_interview_prototype/core/managers/recorder_manager.dart';
+import 'package:ai_interview_prototype/core/routes_manager/routes_names.dart';
 import 'package:ai_interview_prototype/models/job_model.dart';
 import 'package:ai_interview_prototype/views/custom_widgets/mic_icon.dart';
 import 'package:flutter/material.dart';
@@ -22,12 +23,13 @@ class _InterviewPageState extends State<InterviewPage> {
   late String question;
   late double score;
   late double totalScore;
-  late bool startInterview;
+  late bool lastQuestion;
 
   @override
   void initState() {
     question = "";
     isLoading = true;
+    lastQuestion = false;
     score = 0;
     totalScore = 0;
     super.initState();
@@ -37,7 +39,7 @@ class _InterviewPageState extends State<InterviewPage> {
   void didChangeDependencies() {
     final JobModel job = ModalRoute.of(context)!.settings.arguments as JobModel;
     recorderManager = RecorderManager("audio.wav", Codec.pcm16WAV);
-    modelsManager = const ModelsManager("8787189845")
+    modelsManager = const ModelsManager("6732383543")
       ..textToText("""Job title: ${job.jobTitle}
 Job Description: ${job.jobDescription}""").then(
         (value) async {
@@ -66,19 +68,23 @@ Job Description: ${job.jobDescription}""").then(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text(
-                  "Total Score: $totalScore",
-                  style: const TextStyle(fontSize: 18),
+                Column(
+                  children: [
+                    Text(
+                      "Total Score: $totalScore",
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Last Question Score: ${score.toString()}",
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 Text(
                   question,
                   style: const TextStyle(fontSize: 24),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  score.toString(),
-                  style: const TextStyle(fontSize: 18),
                 ),
                 const SizedBox(height: 10),
                 GlowAvatarIcon(
@@ -94,7 +100,15 @@ Job Description: ${job.jobDescription}""").then(
                       score = double.parse(await modelsManager.textToText(res));
                       totalScore += score;
                       setState(() {});
+                      if (context.mounted) {
+                        if (lastQuestion) {
+                          Navigator.pushReplacementNamed(context, RoutesNames.totalScorePage, arguments: [totalScore, score]);
+                        }
+                      }
                       question = await modelsManager.textToText("next");
+                      if (question.startsWith("Final:")) {
+                        lastQuestion = true;
+                      }
                       isLoading = false;
                       setState(() {});
                       await clear([
