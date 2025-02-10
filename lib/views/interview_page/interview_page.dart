@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:ai_interview_prototype/core/managers/models_manager.dart';
+import 'package:ai_interview_prototype/core/managers/player_manager.dart';
 import 'package:ai_interview_prototype/core/managers/recorder_manager.dart';
 import 'package:ai_interview_prototype/core/routes_manager/routes_names.dart';
 import 'package:ai_interview_prototype/models/job_model.dart';
@@ -24,6 +25,7 @@ class _InterviewPageState extends State<InterviewPage> {
   late double score;
   late double totalScore;
   late bool lastQuestion;
+  late String questionVoice;
 
   @override
   void initState() {
@@ -37,17 +39,21 @@ class _InterviewPageState extends State<InterviewPage> {
 
   @override
   void didChangeDependencies() {
-    final JobModel job = ModalRoute.of(context)!.settings.arguments as JobModel;
-    recorderManager = RecorderManager("audio.wav", Codec.pcm16WAV);
-    modelsManager = const ModelsManager("6732383543")
-      ..textToText("""Job title: ${job.jobTitle}
+    if (!lastQuestion) {
+      final JobModel job = ModalRoute.of(context)!.settings.arguments as JobModel;
+      recorderManager = RecorderManager("audio.wav", Codec.pcm16WAV);
+      modelsManager = const ModelsManager("10732383543")
+        ..textToText("""Job title: ${job.jobTitle}
 Job Description: ${job.jobDescription}""").then(
-        (value) async {
-          question = await modelsManager.textToText("next");
-          isLoading = false;
-          setState(() {});
-        },
-      );
+          (value) async {
+            question = await modelsManager.textToText("next");
+            questionVoice = await modelsManager.textToVoice(question);
+            await PlayerManager(questionVoice, Codec.mp3).startPlayAudio();
+            isLoading = false;
+            setState(() {});
+          },
+        );
+    }
 
     super.didChangeDependencies();
   }
@@ -61,66 +67,77 @@ Job Description: ${job.jobDescription}""").then(
           centerTitle: true,
           title: const Text('GP AI Interview'),
         ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      "Total Score: $totalScore",
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "Last Question Score: ${score.toString()}",
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  ],
+        body: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            "Total Score: $totalScore",
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            "Last Question Score: ${score.toString()}",
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        question,
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                      const SizedBox(height: 10),
+                      GlowAvatarIcon(
+                        icon: Icons.mic,
+                        onPressed: (enabled) async {
+                          if (enabled) {
+                            path = await recorderManager.startRecording();
+                          } else if (!enabled && path != null) {
+                            path = await recorderManager.stopRecording();
+                            isLoading = true;
+                            setState(() {});
+                            String res = await modelsManager.voiceToText(path!);
+                            score = double.parse(await modelsManager.textToText(res));
+                            totalScore += score;
+                            setState(() {});
+                            if (context.mounted) {
+                              if (lastQuestion) {
+                                Navigator.pushReplacementNamed(context, RoutesNames.totalScorePage, arguments: [totalScore, score]);
+                              } else {
+                                question = await modelsManager.textToText("next");
+                                questionVoice = await modelsManager.textToVoice(question);
+                                await PlayerManager(questionVoice, Codec.mp3).startPlayAudio();
+                                if (question.startsWith("Final:")) {
+                                  lastQuestion = true;
+                                }
+                              }
+                            }
+
+                            isLoading = false;
+                            setState(() {});
+                            await clear([
+                              path!,
+                              questionVoice,
+                            ]);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  question,
-                  style: const TextStyle(fontSize: 24),
-                ),
-                const SizedBox(height: 10),
-                GlowAvatarIcon(
-                  icon: Icons.mic,
-                  onPressed: (enabled) async {
-                    if (enabled) {
-                      path = await recorderManager.startRecording();
-                    } else if (!enabled && path != null) {
-                      path = await recorderManager.stopRecording();
-                      isLoading = true;
-                      setState(() {});
-                      String res = await modelsManager.voiceToText(path!);
-                      score = double.parse(await modelsManager.textToText(res));
-                      totalScore += score;
-                      setState(() {});
-                      if (context.mounted) {
-                        if (lastQuestion) {
-                          Navigator.pushReplacementNamed(context, RoutesNames.totalScorePage, arguments: [totalScore, score]);
-                        }
-                      }
-                      question = await modelsManager.textToText("next");
-                      if (question.startsWith("Final:")) {
-                        lastQuestion = true;
-                      }
-                      isLoading = false;
-                      setState(() {});
-                      await clear([
-                        path!,
-                        // audioPath,
-                      ]);
-                    }
-                  },
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -128,7 +145,9 @@ Job Description: ${job.jobDescription}""").then(
 
   Future<void> clear(final List<String> filesToDelete) async {
     for (final String file in filesToDelete) {
-      await File(file).delete();
+      try {
+        await File(file).delete();
+      } catch (_) {}
     }
     path = null;
   }
