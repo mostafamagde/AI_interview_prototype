@@ -11,9 +11,7 @@ class TotalScorePage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Total Score: ${(ModalRoute.of(context)?.settings.arguments as List)[0]}"),
-            const SizedBox(height: 10),
-            Text("Last Question Score: ${(ModalRoute.of(context)?.settings.arguments as List)[1]}"),
+            Text("${(ModalRoute.of(context)?.settings.arguments as String)}"),
           ],
         ),
       ),

@@ -40,14 +40,15 @@ class _InterviewPageState extends State<InterviewPage> {
   @override
   void didChangeDependencies() {
     if (!lastQuestion) {
-      final JobModel job = ModalRoute.of(context)!.settings.arguments as JobModel;
+      final JobModel job =
+          ModalRoute.of(context)!.settings.arguments as JobModel;
       recorderManager = RecorderManager("audio.wav", Codec.pcm16WAV);
-      modelsManager = const ModelsManager("10732383543")
+      modelsManager = const ModelsManager("6484748748")
         ..textToText("""Job title: ${job.jobTitle}
 Job Description: ${job.jobDescription}""").then(
           (value) async {
-            question = await modelsManager.textToText("next");
-            questionVoice = await modelsManager.textToVoice(question);
+            question = value;
+            questionVoice = await modelsManager.textToVoice(value);
             await PlayerManager(questionVoice, Codec.mp3).startPlayAudio();
             isLoading = false;
             setState(() {});
@@ -78,19 +79,19 @@ Job Description: ${job.jobDescription}""").then(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Column(
-                        children: [
-                          Text(
-                            "Total Score: $totalScore",
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            "Last Question Score: ${score.toString()}",
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        ],
-                      ),
+                      // Column(
+                      //   children: [
+                      //     Text(
+                      //       "Total Score: $totalScore",
+                      //       style: const TextStyle(fontSize: 18),
+                      //     ),
+                      //     const SizedBox(height: 10),
+                      //     Text(
+                      //       "Last Question Score: ${score.toString()}",
+                      //       style: const TextStyle(fontSize: 18),
+                      //     ),
+                      //   ],
+                      // ),
                       const SizedBox(height: 10),
                       Text(
                         question,
@@ -107,21 +108,43 @@ Job Description: ${job.jobDescription}""").then(
                             isLoading = true;
                             setState(() {});
                             String res = await modelsManager.voiceToText(path!);
-                            score = double.parse(await modelsManager.textToText(res));
-                            totalScore += score;
-                            setState(() {});
-                            if (context.mounted) {
-                              if (lastQuestion) {
-                                Navigator.pushReplacementNamed(context, RoutesNames.totalScorePage, arguments: [totalScore, score]);
-                              } else {
-                                question = await modelsManager.textToText("next");
-                                questionVoice = await modelsManager.textToVoice(question);
-                                await PlayerManager(questionVoice, Codec.mp3).startPlayAudio();
-                                if (question.startsWith("Final:")) {
-                                  lastQuestion = true;
-                                }
-                              }
+                            question = await modelsManager.textToText(res);
+                            print(question);
+                            if (question.toLowerCase().startsWith("score:")) {
+                              lastQuestion = true;
+                              Navigator.pushReplacementNamed(
+                                  context, RoutesNames.totalScorePage,
+                                  arguments: question);
+                              return;
                             }
+                            questionVoice =
+                                await modelsManager.textToVoice(question);
+
+                            await PlayerManager(questionVoice, Codec.mp3)
+                                .startPlayAudio();
+
+                            // if (context.mounted) {
+                            //   if (lastQuestion) {
+                            //     // Navigator.pushReplacementNamed(
+                            //     //     context, RoutesNames.totalScorePage,
+                            //     //     arguments: [totalScore, score]);
+                            //   } else {
+                            //     question =
+                            //         await modelsManager.textToText("next");
+                            //     questionVoice =
+                            //         await modelsManager.textToVoice(question);
+                            //     await PlayerManager(questionVoice, Codec.mp3)
+                            //         .startPlayAudio();
+                            //     if (question
+                            //         .toLowerCase()
+                            //         .startsWith("score:")) {
+                            //       lastQuestion = true;
+                            //       Navigator.pushReplacementNamed(
+                            //           context, RoutesNames.totalScorePage,
+                            //           arguments: question);
+                            //     }
+                            //   }
+                            // }
 
                             isLoading = false;
                             setState(() {});
